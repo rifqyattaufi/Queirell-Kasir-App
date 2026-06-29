@@ -56,48 +56,6 @@ npm run dev
 
 ---
 
-## Deploy ke VPS (PM2)
-
-```bash
-# 1. Clone project ke VPS
-git clone https://github.com/rifqy1406/Queirell-Kasir-App.git
-cd Queirell-Kasir-App
-
-# 2. Install deps
-npm install
-
-# 3. Setup .env
-cp .env.example .env
-# Edit DATABASE_URL
-
-# 4. Migrate DB
-npm run db:migrate
-
-# 5. Build
-npm run build
-
-# 6. Start PM2
-pm2 start ecosystem.config.cjs
-pm2 save
-pm2 startup
-```
-
-### Nginx reverse proxy
-```nginx
-server {
-    listen 80;
-    server_name kasir.domainmu.com;
-
-    location / {
-        proxy_pass http://localhost:3001;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
-```
-
----
-
 ## Struktur Project
 
 ```

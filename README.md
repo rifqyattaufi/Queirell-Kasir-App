@@ -1,13 +1,24 @@
-# Kasir App
+# Queirell Kasir App
 
 Aplikasi kasir sederhana berbasis **Nuxt 4** + **PostgreSQL**.  
 Tidak butuh backend terpisah — server routes Nuxt langsung konek ke Postgres.
+
+## Fitur
+
+- Transaksi kasir dengan pencarian master item
+- Cetak struk (preview + print, support thermal printer)
+- Upload logo/gambar untuk header struk
+- History transaksi dengan filter pencarian
+- Laporan bulanan
+- Master item CRUD
+- Pengaturan toko (nama, alamat, teks struk, dll)
+- Tampilan responsif desktop & mobile
 
 ## Stack
 
 | Layer    | Tech                        |
 |----------|-----------------------------|
-| Frontend | Nuxt 4 + Tailwind CSS v4    |
+| Frontend | Nuxt 4 + Tailwind CSS       |
 | Backend  | Nuxt Server Routes (Nitro)  |
 | Database | PostgreSQL (via `postgres`)  |
 | Deploy   | PM2 di VPS                  |
@@ -48,14 +59,18 @@ npm run dev
 ## Deploy ke VPS (PM2)
 
 ```bash
-# 1. Clone / upload project ke VPS
+# 1. Clone project ke VPS
+git clone https://github.com/rifqy1406/Queirell-Kasir-App.git
+cd Queirell-Kasir-App
+
 # 2. Install deps
 npm install
 
-# 3. Setup .env di VPS
-echo "DATABASE_URL=postgres://user:pass@localhost:5432/kasir_db" > .env
+# 3. Setup .env
+cp .env.example .env
+# Edit DATABASE_URL
 
-# 4. Migrate DB (kalau belum)
+# 4. Migrate DB
 npm run db:migrate
 
 # 5. Build
@@ -67,7 +82,7 @@ pm2 save
 pm2 startup
 ```
 
-### Nginx reverse proxy (opsional)
+### Nginx reverse proxy
 ```nginx
 server {
     listen 80;
@@ -86,12 +101,12 @@ server {
 ## Struktur Project
 
 ```
-kasir-app/
+Queirell-Kasir-App/
 ├── app/
 │   ├── pages/
 │   │   ├── index.vue          # Kasir / POS
 │   │   ├── history.vue        # List transaksi
-│   │   ├── history/[id].vue   # Detail + print
+│   │   ├── history/[id].vue   # Detail transaksi
 │   │   ├── report.vue         # Laporan bulanan
 │   │   ├── master.vue         # Master item CRUD
 │   │   └── config.vue         # Pengaturan toko
@@ -104,7 +119,6 @@ kasir-app/
 │       └── default.vue        # Sidebar + mobile nav
 ├── server/
 │   ├── db/
-│   │   ├── index.ts           # Koneksi singleton Postgres
 │   │   ├── schema.sql         # DDL schema
 │   │   └── migrate.mjs        # Script migrasi
 │   └── api/

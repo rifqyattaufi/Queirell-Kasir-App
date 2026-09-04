@@ -96,7 +96,7 @@
 
           <div style="margin-top:24px;display:flex;justify-content:space-between;font-size:10px;color:#999;padding:0 6px">
             <span>Tanda Terima,</span>
-            <span>{{ config.greeting_text }}</span>
+            <span style="font-weight:bold">{{ config.greeting_text }}</span>
           </div>
 
           <div style="margin-top:48px"></div>

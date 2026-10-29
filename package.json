@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@nuxtjs/tailwindcss": "^6.14.0",
+    "cropperjs": "^1.6.2",
     "dotenv": "^17.4.2",
+    "html2canvas": "^1.4.1",
     "nuxt": "^4.4.8",
     "postgres": "^3.4.9"
   }

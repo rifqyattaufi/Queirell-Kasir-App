@@ -16,6 +16,9 @@
 
         <!-- Inline receipt preview -->
         <div id="receipt-preview" class="font-mono text-sm leading-relaxed">
+          <div style="position:relative">
+          <ReceiptWatermark />
+          <div style="position:relative;z-index:1">
           <div style="display:flex;gap:10px;margin-bottom:12px;align-items:center">
             <div v-if="config.receipt_image" style="display:flex;align-items:center;flex-shrink:0">
               <img :src="config.receipt_image" style="max-height:64px;max-width:64px;object-fit:contain" />
@@ -27,8 +30,8 @@
               <div class="text-xs text-slate-500">{{ config.phone }}</div>
             </div>
             <div style="text-align:right;font-size:10px;flex-shrink:0">
-              <div class="text-slate-400">Tanggal:</div>
-              <div class="font-semibold">{{ formatDate(tx.created_at) }}</div>
+              <div class="font-semibold">{{ tx.invoice_number }}</div>
+              <div class="text-slate-400 mt-0.5">{{ formatDate(tx.created_at) }}</div>
               <template v-if="config.show_recipient === 'true' && tx.customer_name">
                 <div class="mt-1 text-slate-400">Kepada Yth</div>
                 <div class="font-semibold">{{ tx.customer_name }}</div>
@@ -91,6 +94,8 @@
 
           <div v-if="config.closing_text" class="text-center text-xs text-slate-400 mt-6">
             {{ config.closing_text }}
+          </div>
+          </div>
           </div>
         </div>
       </div>

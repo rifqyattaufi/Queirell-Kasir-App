@@ -3,6 +3,7 @@ export default defineNuxtConfig({
   future: { compatibilityVersion: 4 },
 
   modules: ['@nuxtjs/tailwindcss'],
+  css: ['cropperjs/dist/cropper.css'],
 
   runtimeConfig: {
     databaseUrl: '', // overridden by DATABASE_URL in .env

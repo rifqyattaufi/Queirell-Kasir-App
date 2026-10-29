@@ -7,6 +7,14 @@ export interface StoreConfig {
   greeting_text: string
   show_recipient: string // 'true' | 'false'
   receipt_image: string  // base64 data URL
+  // watermark struk (semua string karena disimpan di store_config)
+  wm_mode: string        // 'none' | 'text' | 'logo' | 'image'
+  wm_layout: string      // 'single' | 'tile'
+  wm_text: string
+  wm_image: string       // base64 data URL
+  wm_size: string        // px
+  wm_angle: string       // derajat
+  wm_opacity: string     // persen
 }
 
 const _config = ref<StoreConfig>({
@@ -18,6 +26,13 @@ const _config = ref<StoreConfig>({
   greeting_text: '',
   show_recipient: 'true',
   receipt_image: '',
+  wm_mode: 'none',
+  wm_layout: 'single',
+  wm_text: '',
+  wm_image: '',
+  wm_size: '120',
+  wm_angle: '-30',
+  wm_opacity: '12',
 })
 
 const _loaded = ref(false)

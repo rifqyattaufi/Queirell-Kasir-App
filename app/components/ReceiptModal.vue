@@ -9,24 +9,13 @@
         <!-- Header -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0">
           <h2 class="font-semibold text-slate-700 text-sm">Preview Struk</h2>
-          <div class="flex gap-2">
-            <button
-              @click="doPrint"
-              class="inline-flex items-center gap-1.5 px-4 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-700 transition-colors"
-            >
-              🖨️ Print
-            </button>
-            <button
-              @click="$emit('close')"
-              class="px-3 py-1.5 text-slate-500 text-xs border border-slate-200 rounded-lg hover:bg-slate-50"
-            >
-              Tutup
-            </button>
-          </div>
         </div>
 
         <!-- Receipt -->
         <div id="receipt-preview" class="overflow-y-auto p-6 text-sm leading-relaxed font-mono flex-1">
+          <div style="position:relative">
+          <ReceiptWatermark />
+          <div style="position:relative;z-index:1">
           <!-- Store header -->
           <div style="display:flex;gap:10px;margin-bottom:12px;align-items:center">
             <div v-if="config.receipt_image" style="display:flex;align-items:center;flex-shrink:0">
@@ -39,8 +28,8 @@
               <div class="text-xs text-slate-500">{{ config.phone }}</div>
             </div>
             <div style="text-align:right;font-size:10px;flex-shrink:0">
-              <div class="text-slate-500">Tanggal:</div>
-              <div class="font-semibold">{{ formatDate(tx.created_at) }}</div>
+              <div class="font-semibold">{{ tx.invoice_number }}</div>
+              <div class="text-slate-500 mt-0.5">{{ formatDate(tx.created_at) }}</div>
               <template v-if="config.show_recipient === 'true' && tx.customer_name">
                 <div class="mt-2 text-slate-500">Kepada Yth</div>
                 <div class="font-semibold">{{ tx.customer_name }}</div>
@@ -79,6 +68,10 @@
                 <td style="padding:4px 10px 4px 0">TOTAL</td>
                 <td style="text-align:right;padding:4px 0">{{ formatRp(tx.total) }}</td>
               </tr>
+              <tr v-if="tx.payment_method" style="color:#666;font-size:10px">
+                <td style="padding:2px 10px 2px 0">{{ tx.payment_method }}</td>
+                <td style="text-align:right;padding:2px 0">{{ tx.payment_account_name }}</td>
+              </tr>
               <tr style="color:#666">
                 <td style="padding:4px 10px 4px 0">BAYAR</td>
                 <td style="text-align:right;padding:4px 0">{{ formatRp(tx.paid) }}</td>
@@ -88,6 +81,11 @@
                 <td style="text-align:right;padding:4px 0">{{ formatRp(Math.abs(Number(tx.change))) }}</td>
               </tr>
             </table>
+          </div>
+
+          <div v-if="tx.payment_account_image" class="mt-3 text-center border-t border-slate-100 pt-3">
+            <div class="text-xs text-slate-400 mb-1">{{ tx.payment_method }}{{ tx.payment_account_name ? ` — ${tx.payment_account_name}` : '' }}</div>
+            <img :src="tx.payment_account_image" style="max-height:120px;max-width:120px;object-fit:contain;margin:0 auto" />
           </div>
 
           <div v-if="tx.note" class="mt-3 text-xs text-slate-400 border-t border-slate-100 pt-2">
@@ -103,6 +101,42 @@
 
           <div v-if="config.closing_text" class="text-center text-xs text-slate-400 mt-6 mb-2">
             {{ config.closing_text }}
+          </div>
+          </div>
+          </div>
+        </div>
+
+        <!-- Footer buttons -->
+        <div class="px-5 py-4 border-t border-slate-100 shrink-0 space-y-2">
+          <div class="flex gap-2">
+            <button
+              @click="share('jpg', fileName)"
+              :disabled="!!sharing"
+              class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+            >
+              {{ sharing === 'jpg' ? '⏳ Menyiapkan…' : '📤 Bagikan JPG' }}
+            </button>
+            <button
+              @click="share('pdf', fileName)"
+              :disabled="!!sharing"
+              class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+            >
+              {{ sharing === 'pdf' ? '⏳ Menyiapkan…' : '📤 Bagikan PDF' }}
+            </button>
+          </div>
+          <div class="flex gap-2">
+            <button
+              @click="doPrint"
+              class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-700 text-white text-xs font-semibold rounded-lg hover:bg-slate-800 transition-colors"
+            >
+              🖨️ Print
+            </button>
+            <button
+              @click="$emit('close')"
+              class="flex-1 px-4 py-2 text-slate-500 text-xs border border-slate-200 rounded-lg hover:bg-slate-50"
+            >
+              Tutup
+            </button>
           </div>
         </div>
       </div>
@@ -120,6 +154,8 @@ defineEmits<{ close: [] }>()
 
 const { config } = useConfig()
 const { formatRp, formatDate } = useFormat()
+const { sharing, share } = useShareReceipt()
+const fileName = computed(() => `struk-${props.tx?.invoice_number || props.tx?.id || Date.now()}`)
 
 const totalQty = computed(() =>
   props.tx?.items?.reduce((s: number, i: any) => s + Number(i.qty), 0) ?? 0

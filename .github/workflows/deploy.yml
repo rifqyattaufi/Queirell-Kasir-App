@@ -1,0 +1,36 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency: deploy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id
+          chmod 600 ~/.ssh/id
+          # ponytail: ssh-keyscan trusts first-seen host key, pin VPS_HOST_KEY secret if this matters
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Deploy
+        run: |
+          ssh -i ~/.ssh/id ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'bash -se' <<'EOF'
+          set -euo pipefail
+          # non-interactive ssh gets system node 18; app runs on nvm node 24
+          . "$HOME/.nvm/nvm.sh"
+          nvm use 24 >/dev/null
+          cd /var/www/kasir
+          git pull --ff-only
+          npm ci
+          npm run build
+          npm run db:migrate
+          pm2 reload ecosystem.config.cjs --update-env
+          curl -fsS -o /dev/null http://localhost:3001/api/config
+          EOF
